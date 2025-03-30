@@ -16,7 +16,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install VSCE
-        run: npm install --global vsce
+        run: npm install -g vsce
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Package VS code extension
         run: vsce package
