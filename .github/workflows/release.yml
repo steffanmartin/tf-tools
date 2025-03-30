@@ -28,3 +28,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: tf-tools-${{ env.VERSION }}.vsix
+          token: ${{ secrets.GITHUB_TOKEN }}
