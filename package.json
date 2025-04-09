@@ -3,7 +3,7 @@
   "displayName": "tf-tools",
   "description": "VS Code tools for working with Terraform",
   "publisher": "skunoy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/steffanmartin/tf-tools"
