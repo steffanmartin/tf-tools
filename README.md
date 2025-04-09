@@ -10,6 +10,8 @@ Terraform resource and data tags are annotated with links to the relevant docume
 
 ![Demonstration of clickable Terraform resource/data tags](media/tf-links-demo.gif)
 
+URL links to specific provider publisher and version declared in the module context if applicable, otherwise they default to hashicorp/latest.
+
 ### Feature request
 
 Any ideas for cool features to add? [Create an Issue](https://github.com/steffanmartin/tf-tools/issues/new) 📝
