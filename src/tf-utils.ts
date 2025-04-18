@@ -1,4 +1,4 @@
-import * as fs from "fs/promises";
+import * as vscode from "vscode";
 import path from "path";
 
 export const tfRegex = /\b(resource|data) "([^"]+)" "([^"]+)" \{\s*/g;
@@ -64,6 +64,18 @@ function getCanonicalVersion(versionConstraint: string): string {
   return versionConstraint;
 }
 
+async function readFile(filePath: string): Promise<string> {
+  const uri = vscode.Uri.file(filePath);
+  const fileData = await vscode.workspace.fs.readFile(uri);
+  return Buffer.from(fileData).toString("utf-8");
+}
+
+async function readDirectory(dirPath: string): Promise<string[]> {
+  const uri = vscode.Uri.file(dirPath);
+  const entries = await vscode.workspace.fs.readDirectory(uri);
+  return entries.map(([name]) => name);
+}
+
 class ProviderInfo {
   constructor(
     public name: string,
@@ -113,12 +125,12 @@ export async function getProviderInfoInCurrentModule(
   const defaultProviderInfo = new ProviderInfo(provider).toString();
 
   try {
-    const files = await fs.readdir(modulePath);
+    const files = await readDirectory(modulePath);
     if (!files.includes("versions.tf")) {
       return defaultProviderInfo;
     }
 
-    const content = await fs.readFile(versionsFilePath, "utf-8");
+    const content = await readFile(versionsFilePath);
 
     const providerRegex = new RegExp(
       `${provider}\\s*=\\s*{\\s*([^}]+)\\s*}`,
