@@ -26,7 +26,7 @@ function getCanonicalVersion(versionConstraint: string): string {
 
   if (
     versionConstraint.startsWith(">=") ||
-    versionConstraint.startsWith(">=")
+    versionConstraint.startsWith("<=")
   ) {
     const baseVersion = versionConstraint.slice(2).trim();
     return baseVersion;
@@ -75,7 +75,11 @@ class ProviderInfo {
     }
   }
 
-  static fromConfigBlock(provider: string, configBlock: string): ProviderInfo {
+  static fromConfigBlock(
+    provider: string,
+    configBlock: string,
+    useLatestVersion: boolean = false
+  ): ProviderInfo {
     const info = new ProviderInfo(provider);
 
     const sourceMatch = configBlock.match(/source\s*=\s*"([^"]+)"/);
@@ -87,7 +91,7 @@ class ProviderInfo {
     }
 
     const versionMatch = configBlock.match(/version\s*=\s*"([^"]+)"/);
-    if (versionMatch) {
+    if (versionMatch && !useLatestVersion) {
       const versionConstraint = versionMatch[1].trim();
       info.version = getCanonicalVersion(versionConstraint);
     }
@@ -102,7 +106,8 @@ class ProviderInfo {
 
 export async function getProviderInfoInCurrentModule(
   provider: string,
-  modulePath: string
+  modulePath: string,
+  useLatestVersion: boolean = false
 ): Promise<string> {
   const versionsFilePath = path.join(modulePath, "versions.tf");
   const defaultProviderInfo = new ProviderInfo(provider).toString();
@@ -126,7 +131,11 @@ export async function getProviderInfoInCurrentModule(
     }
 
     const block = match[1];
-    const providerInfo = ProviderInfo.fromConfigBlock(provider, block);
+    const providerInfo = ProviderInfo.fromConfigBlock(
+      provider,
+      block,
+      useLatestVersion
+    );
 
     return providerInfo.toString();
   } catch (err) {
