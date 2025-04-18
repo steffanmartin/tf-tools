@@ -6,7 +6,9 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "tf-tools" is now active!');
 
   const config = vscode.workspace.getConfiguration("tf-tools");
-  const useLatestVersion = config.get<boolean>("alwaysUseLatestProviderVersion");
+  const useLatestVersion = config.get<boolean>(
+    "alwaysUseLatestProviderVersion"
+  );
 
   const linkProvider = vscode.languages.registerDocumentLinkProvider(
     { scheme: "file", language: "terraform" },
@@ -34,7 +36,8 @@ export function activate(context: vscode.ExtensionContext) {
           if (provider in providerInfos) {
             providerInfo = providerInfos[provider];
           } else {
-            const modulePath = path.dirname(document.uri.fsPath);
+            const filePath = document.uri.fsPath.replace(/\\/g, "/");
+            const modulePath = path.dirname(filePath);
             providerInfo = await getProviderInfoInCurrentModule(
               provider,
               modulePath,
