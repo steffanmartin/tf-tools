@@ -14,7 +14,7 @@ export const knownProviders: { [key: string]: string } = {
   oci: "oracle",
 };
 
-function getCanonicalVersion(versionConstraint: string): string {
+export function getCanonicalVersion(versionConstraint: string): string {
   if (versionConstraint.startsWith("~>")) {
     const baseVersion = versionConstraint.slice(2).trim();
     let versionParts = baseVersion.split(".");
