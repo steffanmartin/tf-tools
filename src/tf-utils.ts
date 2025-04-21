@@ -1,7 +1,10 @@
 import * as vscode from "vscode";
 import path from "path";
 
-export const tfRegex = /\b(resource|data) "([^"]+)" "([^"]+)" \{\s*/g;
+export const tfRegex: { [key: string]: RegExp } = {
+  resourceData: /\b(resource|data) "([^"]+)" "([^"]+)" \{\s*/g,
+  module: /\bmodule\s+"([^"]+)" \{[^}]*?source\s*=\s*"([^"]+)"/g,
+};
 
 export const typesMap: { [key: string]: string } = {
   resource: "resources",
@@ -154,4 +157,37 @@ export async function getProviderInfoInCurrentModule(
     console.error("Error reading provider info:", err);
     return defaultProviderInfo;
   }
+}
+
+/**
+ * Utility function to get the module source URI.
+ * @param documentDirPath The path to the VS Code document's parent directory.
+ * @param sourcePath The module source path specified in the module config block.
+ * @returns URI to the module source declaration, either in a local folder or in the Terraform Registry docs.
+ */
+export async function getModuleSourceUri(
+  documentDirPath: string,
+  sourcePath: string
+): Promise<vscode.Uri> {
+  // Try to find the main.tf in the module source directory
+  try {
+    let modulePath = path.posix.resolve(documentDirPath, sourcePath);
+    modulePath = modulePath.replace(
+      // Work-around to rectify path-browserify bug
+      "C:\\Program Files\\Microsoft VS Code/",
+      ""
+    );
+    const moduleFilePath = path.join(modulePath, "main.tf");
+    const moduleUri = vscode.Uri.file(moduleFilePath);
+
+    const stat = await vscode.workspace.fs.stat(moduleUri);
+    if (stat.type === vscode.FileType.File) {
+      return moduleUri;
+    }
+  } catch {}
+
+  // Link to the Terraform Registry module docs
+  const registryLink = `https://registry.terraform.io/modules/${sourcePath}/latest`;
+  const registryUri = vscode.Uri.parse(registryLink);
+  return registryUri;
 }
